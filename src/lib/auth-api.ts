@@ -1,4 +1,5 @@
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
+const DEMO_MODE = process.env.NEXT_PUBLIC_DEMO_MODE === 'true';
 
 export type User = {
   id: string;
@@ -43,6 +44,25 @@ export function clearStoredAuth(): void {
 }
 
 export async function login(email: string, password: string): Promise<LoginResponse> {
+  if (DEMO_MODE) {
+    const users: User[] = [
+      { id: 'userdemo-admin', email: 'admin@imobiliaria.com', name: 'Admin Silva', role: 'admin' },
+      { id: 'userdemo-corretor', email: 'corretor@imobiliaria.com', name: 'Maria Corretora', role: 'corretor' },
+    ];
+
+    const user = users.find((u) => u.email.toLowerCase() === email.trim().toLowerCase());
+    await new Promise((r) => setTimeout(r, 400));
+
+    if (!user || password !== '123456') {
+      throw new Error('Credenciais inválidas para o ambiente de demonstração');
+    }
+
+    return {
+      user,
+      token: `demo-token-${user.role}`,
+    };
+  }
+
   const res = await fetch(`${API_URL}/api/auth/login`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
