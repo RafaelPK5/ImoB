@@ -389,6 +389,14 @@ export async function atualizarImovel(id: string, payload: Partial<ImovelPayload
       ...current,
       ...payload,
       preco: payload.preco ?? current.preco,
+      fotos: payload.fotos
+        ? payload.fotos.map((f, idx) => ({
+            id: `foto-demo-edit-${id}-${idx}`,
+            url: f.url,
+            ordem: f.ordem ?? idx,
+            destaque: Boolean(f.destaque),
+          }))
+        : current.fotos,
       updatedAt: new Date().toISOString(),
     };
     const next = [...all];
